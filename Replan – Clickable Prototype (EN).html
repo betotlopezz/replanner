@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Replan – Prototype</title>
+<style>
+:root{--bg:#F2F6F5;--card:#fff;--ink:#17303A;--muted:#5C7480;--line:#DCE6E8;--p:#1D6A74;--pd:#134F58;--pl:#E2F0F1;--ok:#2B8A5E;--okl:#E3F4EB;--am:#9A6200;--aml:#FFF2CF;--red:#C93232;--redd:#A82222;--redl:#FDEBEA}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:linear-gradient(160deg,#cfe0e1,#e9efe9);}
+#stage{min-height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+.phone{position:relative;width:390px;max-width:100%;height:min(calc(100dvh - 32px),844px);background:var(--bg);border-radius:34px;box-shadow:0 20px 60px rgba(20,60,70,.28),0 0 0 8px #17303A;overflow:hidden;display:flex;flex-direction:column}
+@media(max-width:500px){#stage{padding:0}.phone{width:100%;height:100dvh;border-radius:0;box-shadow:none}}
+.ribbon{position:absolute;top:14px;right:-34px;width:120px;text-align:center;transform:rotate(40deg);background:#17303A;color:#fff;font-size:9px;letter-spacing:.12em;font-weight:700;padding:3px 0;z-index:60;pointer-events:none;text-transform:uppercase}
+.top{padding:14px 16px 10px;background:var(--bg);flex:none}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;color:var(--pd);margin-bottom:10px}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:var(--p);color:#fff;display:grid;place-items:center;font-size:14px}
+.brand small{margin-left:auto;margin-right:40px;font-weight:600;font-size:12px;color:var(--muted)}
+.seg{display:flex;background:#E3ECEC;border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:11px;padding:10px 4px;font-size:14px;font-weight:700;color:var(--muted);font-family:inherit;cursor:pointer;min-height:44px}
+.seg button.on{background:#fff;color:var(--pd);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.scroll{flex:1;overflow-y:auto;padding:6px 16px 28px;-webkit-overflow-scrolling:touch}
+.scroll.pb{padding-bottom:170px}
+.tabs{flex:none;display:flex;background:#fff;border-top:1px solid var(--line);padding:6px 8px 10px}
+.tabs button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;font-size:12px;font-weight:700;color:var(--muted);font-family:inherit;cursor:pointer;min-height:56px;border-radius:12px}
+.tabs button span{font-size:22px}
+.tabs button.on{color:var(--p);background:var(--pl)}
+.sos{position:absolute;left:16px;right:16px;bottom:86px;height:68px;border:0;border-radius:20px;background:var(--red);color:#fff;font-size:21px;font-weight:800;font-family:inherit;box-shadow:0 8px 22px rgba(201,50,50,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;z-index:20}
+.sos:active{background:var(--redd);transform:scale(.99)}
+.fbar{flex:none;padding:12px 16px 16px;background:linear-gradient(transparent,var(--bg) 25%)}
+.bar{display:flex;align-items:center;gap:8px;padding:12px 12px 8px;flex:none}
+.bar .back{width:48px;height:48px;border-radius:14px;border:0;background:#fff;font-size:22px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);font-family:inherit;color:var(--pd)}
+.bar h2{margin:0;font-size:18px;flex:1}
+.stepper{display:flex;gap:6px;padding:0 16px 8px;flex:none}
+.stepper i{flex:1;height:6px;border-radius:3px;background:#D5E1E2}
+.stepper i.on{background:var(--p)}
+h1{font-size:26px;line-height:1.2;margin:8px 0 6px}
+h3{margin:0;font-size:17px}
+p{margin:0 0 10px;line-height:1.45}
+.sub{color:var(--muted);font-size:15px}
+.card{background:var(--card);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 1px 3px rgba(20,60,70,.08);border:1px solid var(--line)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;border-radius:16px;border:0;background:var(--p);color:#fff;font-size:17px;font-weight:800;font-family:inherit;cursor:pointer;padding:12px 16px;text-align:center}
+.btn:active{background:var(--pd)}
+.btn.sec{background:#fff;color:var(--pd);border:2px solid var(--p)}
+.btn.ghost{background:transparent;color:var(--pd);min-height:48px}
+.btn.ok{background:var(--ok)}
+.btn.red{background:var(--red)}
+.btn.dis{background:#DCE5E6;color:#7B909A}
+.btn + .btn{margin-top:10px}
+.link{display:block;text-align:center;color:var(--p);font-weight:700;font-size:15px;padding:14px 8px;cursor:pointer;text-decoration:underline;background:none;border:0;width:100%;font-family:inherit}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700;background:#E8EEEF;color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--okl);color:var(--ok)}
+.chip.p{background:var(--pl);color:var(--p)}
+.chip.am{background:var(--aml);color:var(--am)}
+.chip.red{background:var(--redl);color:var(--red)}
+.choice{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px 16px;margin:10px 0;font-family:inherit;font-size:17px;font-weight:800;color:var(--ink);cursor:pointer;min-height:84px}
+.choice:active{background:var(--pl)}
+.choice .ic{font-size:30px;width:52px;height:52px;border-radius:16px;background:var(--pl);display:grid;place-items:center;flex:none}
+.choice small{display:block;font-weight:500;color:var(--muted);font-size:14px;margin-top:3px}
+.alert{background:var(--aml);border:1.5px solid #F0CE72;border-radius:18px;padding:14px;color:#5f3d00}
+.good{background:var(--okl);border:1.5px solid #A9DBC1;border-radius:18px;padding:14px;color:#1c5a3e;font-weight:700;display:flex;gap:10px;align-items:center}
+.row{display:flex;align-items:center;gap:10px}
+.sp{justify-content:space-between}
+.mut{color:var(--muted);font-size:13px}
+textarea,input{width:100%;font-family:inherit;font-size:15px;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:#fff;color:var(--ink)}
+textarea{min-height:230px;line-height:1.5;resize:none}
+.timer{display:inline-flex;gap:6px;align-items:center;background:var(--pl);color:var(--pd);border-radius:999px;padding:7px 14px;font-weight:800;font-size:14px}
+.spin{width:54px;height:54px;border-radius:50%;border:6px solid #D5E7E8;border-top-color:var(--p);animation:sp 0.9s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.skel{background:linear-gradient(90deg,#E4ECEC 25%,#F3F7F7 50%,#E4ECEC 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:12px}
+@keyframes sh{to{background-position:-200% 0}}
+.center{text-align:center}
+.pop{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.fade{animation:fd .3s ease}
+@keyframes fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.checkc{width:84px;height:84px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin:8px auto}
+.tl{position:relative;margin-left:12px;border-left:3px solid #CFDDDF;padding-left:18px}
+.stop{position:relative;background:#fff;border-radius:18px;padding:14px;margin:0 0 12px;border:1.5px solid var(--line);cursor:pointer}
+.stop::before{content:attr(data-n);position:absolute;left:-37px;top:14px;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid #CFDDDF;display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--muted)}
+.stop.done{opacity:.78}.stop.done::before{background:var(--ok);border-color:var(--ok);color:#fff}
+.stop.enroute{border-color:var(--p);box-shadow:0 0 0 3px var(--pl)}.stop.enroute::before{background:var(--p);border-color:var(--p);color:#fff}
+.stop h3{font-size:16px}
+.det{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:14px}
+.det div{margin:4px 0}
+.truck{background:var(--p);color:#fff;border-radius:22px;padding:18px;margin:8px 0 14px}
+.truck .big{font-size:19px;font-weight:800;line-height:1.25}
+.truck .src{margin-top:8px;font-size:13px;opacity:.9}
+.opt{background:#fff;border-radius:22px;border:1.5px solid var(--line);padding:16px;margin:14px 0;box-shadow:0 2px 6px rgba(20,60,70,.08)}
+.opt.fixed{border-color:var(--ok);box-shadow:0 0 0 3px var(--okl)}
+.oh{display:flex;gap:12px;align-items:flex-start}
+.let{width:42px;height:42px;border-radius:13px;background:var(--p);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:none}
+.prot{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.cost{font-size:34px;font-weight:800;margin:12px 0 2px;color:var(--pd)}
+.cost small{font-size:13px;font-weight:600;color:var(--muted)}
+.mets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.mets div{background:var(--bg);border-radius:14px;padding:10px 8px;text-align:center}
+.mets b{display:block;font-size:16px}
+.mets span{font-size:11.5px;color:var(--muted);font-weight:600}
+.imp{background:var(--pl);border-radius:14px;padding:11px 12px;font-size:14px;margin:8px 0}
+.ven{display:block;width:100%;text-align:left;background:none;border:1.5px dashed #B8CCCF;border-radius:12px;padding:9px 11px;font-size:13px;color:var(--pd);font-weight:600;margin:8px 0;font-family:inherit;cursor:pointer}
+.why{width:100%;text-align:left;background:none;border:0;color:var(--p);font-weight:800;font-size:15px;padding:12px 0;font-family:inherit;cursor:pointer;display:flex;justify-content:space-between;min-height:48px}
+.whyb{background:var(--bg);border-radius:14px;padding:12px;font-size:14px;margin-bottom:10px}
+.whyb ul{margin:6px 0 8px;padding-left:18px}
+.overlay{position:absolute;inset:0;background:rgba(10,30,36,.5);z-index:70;animation:fd .2s}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:12px 16px 24px;z-index:71;animation:up .3s ease;max-height:85%;overflow:auto}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.grab{width:44px;height:5px;border-radius:3px;background:#CBD8DA;margin:0 auto 12px}
+.bubble{background:#DCF8C6;border-radius:4px 16px 16px 16px;padding:10px 12px;font-size:14px;line-height:1.4;margin:8px 0;max-width:94%;box-shadow:0 1px 1px rgba(0,0,0,.1)}
+.chat{background:#EFE9DE;border-radius:18px;padding:10px 12px;margin:10px 0}
+.chat .to{font-size:12px;font-weight:700;color:#6b6252;margin-top:4px}
+.bars{display:flex;align-items:flex-end;gap:36px;height:190px;padding:10px 20px 0;justify-content:center;border-bottom:2px solid var(--line)}
+.bars div{width:78px;border-radius:12px 12px 0 0;display:flex;justify-content:center;padding-top:6px;color:#fff;font-weight:800;font-size:18px}
+.bl{display:flex;gap:36px;justify-content:center;padding:6px 20px;font-weight:700;font-size:14px}
+.bl span{width:78px;text-align:center}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px}
+.stat b{font-size:26px;display:block;color:var(--pd)}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.emo{display:flex;gap:8px;margin:8px 0 14px}
+.emo button{flex:1;font-size:30px;border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 0;cursor:pointer;min-height:58px}
+.emo button.on{border-color:var(--p);background:var(--pl);transform:scale(1.05)}
+.ditem{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px;margin:8px 0;counter-increment:n;min-height:72px;user-select:none}
+.ditem.dragging{box-shadow:0 8px 20px rgba(0,0,0,.2);border-color:var(--p);background:var(--pl)}
+.ditem::before{content:counter(n);width:30px;height:30px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+.handle{margin-left:auto;font-size:26px;color:var(--muted);touch-action:none;cursor:grab;padding:8px 6px}
+#dlist{counter-reset:n}
+.price{background:linear-gradient(150deg,var(--pd),var(--p));color:#fff;border-radius:22px;padding:20px;margin:14px 0}
+.price b{font-size:30px}
+.price .btn{background:#fff;color:var(--pd);margin-top:14px}
+.ci{display:grid;grid-template-columns:1fr;gap:10px}
+.ci button{min-height:68px;border-radius:18px;border:0;font-size:19px;font-weight:800;font-family:inherit;cursor:pointer;color:#fff}
+.nt{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.nt:last-child{border:0}
+.nt b{min-width:104px;color:var(--pd)}
+.pend{padding:14px;border:1.5px solid var(--line);border-radius:18px;margin:10px 0;background:#fff}
+.two{display:flex;gap:10px;margin-top:10px}
+.two .btn{margin:0}
+.big-note{font-size:13px;color:var(--muted);text-align:center;margin:6px 0}
+</style>
+</head>
+<body>
+<div id="stage"><div class="phone" id="app"></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const CHECK='<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const money=n=>'$'+n.toLocaleString('en-US');
+
+const STOPS=[
+{id:1,t:'7:30–8:30 am',name:'Castillo family',kind:'Kids birthday',col:'Montebello',st:'done',eq:'6 round tables · 48 Tiffany chairs',notes:[['Guard','Booth at the entrance, check in on arrival'],['Parking','14th Street, in front of the house'],['Contact','Mrs. Castillo · 999 555 0142']]},
+{id:2,t:'8:30–9:15 am',name:'Mr. Canul',kind:'Family gathering',col:'García Ginerés',st:'done',eq:'10 rectangular tables · 80 folding chairs',notes:[['Access','Enter through the garage, 2 steps'],['Contact','Mr. Canul · 999 555 0177']]},
+{id:3,t:'9:30–10:30 am',name:'Mrs. Pérez',kind:'Anniversary lunch',col:'Itzimná',st:'enroute',eq:'4 tables · 30 chairs · 4 tablecloths',notes:[['Gate','Blue, ring the bell twice'],['Parking','Narrow street, truck does not fit: unload from the front'],['Contact','Mrs. Pérez · 999 555 0120']]},
+{id:4,t:'10:45–11:30 am',name:'Mr. Góngora',kind:'Baptism',col:'Altabrisa',st:'pending',eq:'12 tables · 100 chairs',notes:[['Guard','Ask for a pass at the booth (name: Góngora)'],['Parking','Loading area on the left'],['Contact','Mr. Góngora · 999 555 0188']]},
+{id:5,t:'11:45 am–12:45 pm',name:'Mrs. Mena',kind:'Garden party',col:'Montebello',st:'pending',eq:'6x6 tent · 6 tables · 40 chairs',notes:[['Access','Garden at the back, go along the right side'],['Tent','Takes 45 min to set up with 2 people'],['Contact','Mrs. Mena · 999 555 0166']]},
+{id:6,t:'1:15–2:00 pm',name:'Hacienda San Antonio',kind:'Wedding · planner Lucía Campos',col:'Progreso Highway',st:'pending',planner:true,eq:'20 tables · 160 chairs · 2 bars',notes:[['Gate','Closes at 2:00 pm, the truck cannot enter after that'],['Guard','Talk to don Ramiro, service entrance'],['Parking','Back yard, dirt road'],['Contact','Lucía Campos (planner) · 999 555 0199']]}
+];
+const stopBy=id=>STOPS.find(s=>s.id===id);
+const OPTS={
+A:{prot:'Less overtime',cost:0,ot:'+0 h',late:'1 · 25 min',km:'4 km',load:'Even',extra:'Mr. Góngora (Stop 4) gets his order 25 min late.',impact:'The tent for Stop 5 leaves 20 min later.',
+ why:'We keep the normal workday. Mrs. Pérez is served at the end of the day and Mr. Góngora waits a bit. Nobody works overtime.',
+ plan:[[3,'Retry 3:30 pm','Mrs. Pérez at the end of the day'],[4,'11:10 am','25 min late'],[5,'12:05 pm','20 min later'],[6,'1:30 pm','On time']]},
+B:{prot:'Fewer late customers',cost:835,ot:'+2.5 h',late:'0',km:'11 km',load:'Chucho',extra:'Everyone is on time. The day ends at 5:30 pm.',impact:'Chucho and Beto finish at 5:30 pm instead of 3:00 pm.',
+ why:'We wait for Mrs. Pérez and drive more so nobody is late. It costs more because the crew works 2.5 extra hours.',
+ plan:[[3,'10:10 am','Wait for Mrs. Pérez'],[4,'11:00 am','On time'],[5,'12:00 pm','On time'],[6,'1:30 pm','On time']]},
+C:{prot:'Protect the planners',cost:334,ot:'+1 h',late:'0',km:'7 km',load:'Even',extra:'Mrs. Pérez is rescheduled. Events with a planner do not change.',impact:'Stop 4 and Stop 6 (with a planner) leave on time.',
+ why:'Mrs. Pérez moves to 4:00 pm because she has no planner involved. Planner events stay the same to protect the relationship.',
+ plan:[[3,'Rescheduled 4:00 pm','Mrs. Pérez (not a planner)'],[4,'10:45 am','No change'],[5,'11:50 am','5 min late'],[6,'1:15 pm','No change']]}
+};
+const ASSUME=['Unloading tables and chairs: 25 min per stop','Setting up a tent: 45 min','In the city: 30 km/h','Waiting for the customer: 10 min max'];
+const WRONG=['That street is closed','That place is not like that','That always takes longer (e.g. 20 min)','Other'];
+const PROBS={cliente:['🚪','Customer not there','Stop 3 · Mrs. Pérez · Itzimná · waiting 12 min'],trafico:['🚦','Traffic','Stop 3 · Mrs. Pérez · Itzimná · traffic, +15 min'],camion:['🔧','Truck broke down','Truck with Chucho · Periférico · stopped'],lugar:['📍','Venue changed','Stop 3 · Mrs. Pérez · Itzimná · the venue changed']};
+
+const S={screen:'imp0',hist:[],role:'dueno',prob:'cliente',open:{},exp:{},corr:{},sheet:null,sheetCard:null,chosen:null,addrOk:false,edit:{},manual:[3,4,5,6],sent:false,script:false,
+ pulse:{},checkin:null,csel:3,addNote:false,extraNotes:{},disp:{},ask:{},hTab:'am',approved:false,vsrc:'pegar'};
+const MAIN=['home','equipo','resumen'];
+
+function go(s){ if(!['imp2','br3'].includes(S.screen)) S.hist.push(S.screen); S.screen=s; S.sheet=null; render(true); enter(); }
+function back(){ if(S.screen==='br3') return; S.screen=S.hist.pop()||'home'; S.sheet=null; render(true); }
+function setMain(s){ S.hist=[]; S.screen=s; render(true); }
+function enter(){
+ if(S.screen==='imp2'){ setTimeout(()=>{ if(S.screen==='imp2'){ S.screen='imp3'; render(true);} },2000); }
+ if(S.screen==='br3'){ setTimeout(()=>{ if(S.screen==='br3'){ S.screen='br4'; render(true);} },1900); }
+}
+
+/* ---------- pieces ---------- */
+const chipFor=s=>s==='done'?'<span class="chip ok">✓ Done</span>':s==='enroute'?'<span class="chip p">🚚 On the way</span>':'<span class="chip">Pending</span>';
+function bar(title,withBack=true){return `<div class="bar">${withBack?'<button class="back" data-act="back" aria-label="Back">←</button>':''}<h2>${title}</h2></div>`}
+function stepper(n){return `<div class="stepper">${[1,2,3].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>`}
+function mainTop(){
+ const r=[['dueno','Owner'],['despacho','Dispatch'],['chucho','Chucho']];
+ return `<div class="top"><div class="brand"><div class="dot">↻</div>Replan<small>Sat 9:40 am</small></div>
+ <div class="seg">${r.map(x=>`<button class="${S.role===x[0]?'on':''}" data-act="role" data-v="${x[0]}">${x[1]}</button>`).join('')}</div></div>`;
+}
+function tabs(){
+ const t=[['home','🗓️','Today'],['equipo','👥','Team'],['resumen','📈','Summary']];
+ return `<div class="tabs">${t.map(x=>`<button class="${S.screen===x[0]?'on':''}" data-act="tab" data-v="${x[0]}"><span>${x[1]}</span>${x[2]}</button>`).join('')}</div>`;
+}
+function stopCard(s,opts={}){
+ const o=S.open[s.id];
+ return `<div class="stop ${s.st}" data-n="${s.id}" data-act="openStop" data-v="${s.id}">
+ <div class="row sp"><span class="mut"><b>${s.t}</b></span>${chipFor(s.st)}</div>
+ <h3 style="margin-top:6px">${s.name}</h3><div class="mut">${s.col} · ${s.kind}</div>
+ ${o?`<div class="det fade"><div>📦 ${s.eq}</div>${s.notes.map(n=>`<div>📝 <b>${n[0]}:</b> ${n[1]}</div>`).join('')}<div class="mut">Based on your notes</div></div>`:''}
+ </div>`;
+}
+
+/* ---------- screens ---------- */
+const V={};
+V.imp0=()=>({body:`
+ <div class="scroll"><h1>Bring in today's plan</h1>
+ <p class="sub">No retyping. Choose how you want to bring it in.</p>
+ <span class="timer">⏱ Plan ready in 40 seconds</span>
+ <div style="margin-top:12px">
+ <button class="choice" data-act="src" data-v="pegar"><span class="ic">💬</span><span>Paste WhatsApp message<small>Copy the message and paste it here</small></span></button>
+ <button class="choice" data-act="src" data-v="excel"><span class="ic">📊</span><span>Upload Ana's Excel<small>We read it just as it comes</small></span></button>
+ <button class="choice" data-act="src" data-v="ayer"><span class="ic">🔁</span><span>Use yesterday's plan as a base<small>You only change what is different</small></span></button></div>
+ <p class="big-note">You never have to type addresses or times.</p>
+ <button class="link" data-go="home">I already have the plan, go to Today</button></div>`});
+V.imp1=()=>({body:`${bar('Paste message')}<div class="scroll">
+ <p class="sub">This is how Ana's message came in. Leave it as is, even if it is messy.</p>
+ <textarea readonly>Rodrigo good morning, here is today sat:
+1) castillo montebello 7:30am - 6 round tables 48 tiffany chairs
+2) mr canul garcia gineres 8:30 10 tables 80 folding chairs
+3) mrs perez itzimna 9:30 4 tables 30 chairs
+4) mr gongora altabrisa 10:45 12 tables 100 chairs
+5) mrs mena montebello 11:45 tent 6x6 + 6 tables 40 chairs
+6) hacienda san antonio on the progreso highway 1:15pm (planner lucia) 20 tables 160 chairs
+careful gate closes at 2!!</textarea>
+ <p class="big-note" style="margin-top:12px">No retyping needed.</p>
+ <button class="btn" data-go="imp2">Read plan</button></div>`});
+V.imp2=()=>({body:`<div class="scroll center" style="padding-top:60px"><div class="spin"></div>
+ <h1 style="font-size:22px;margin-top:22px">Reading your plan…</h1><p class="sub">Finding times, neighborhoods and equipment.</p>
+ <div style="margin-top:24px;text-align:left">${[1,2,3].map(()=>'<div class="skel" style="height:70px;margin:10px 0"></div>').join('')}</div></div>`});
+V.imp3=()=>({body:`${bar('Today\'s plan')}<div class="scroll">
+ <div class="row sp"><span class="timer">⏱ Plan ready in 40 seconds</span></div>
+ <div class="good" style="margin-top:12px"><span style="font-size:24px">✅</span>Everything was read correctly</div>
+ <p class="sub" style="margin-top:10px">Tap a card to fix something. You do not need to type the rest.</p>
+ ${STOPS.map(s=>{
+  if(s.id===6){ return S.addrOk
+   ? `<div class="card fade" style="border-color:#A9DBC1"><div class="row sp"><b>Stop 6 · ${s.t}</b><span class="chip ok">✓ Confirmed</span></div><h3>${s.name}</h3><div class="mut">Km 12, Mérida–Progreso Highway</div></div>`
+   : `<div class="alert" style="margin:12px 0"><b>⚠️ Check this address</b><h3 style="margin:8px 0 2px">Stop 6 · ${s.name}</h3><p style="margin:0 0 10px">The message says “on the progreso highway”. Is it this one?</p><div class="card" style="margin:0 0 10px"><b>Hacienda San Antonio</b><div class="mut">Km 12, Mérida–Progreso Highway</div></div><button class="btn ok" data-act="addr">Yes, that's it</button><button class="link" data-act="addr">It's another one, change</button></div>`; }
+  const e=S.edit[s.id];
+  return `<div class="card" style="margin:10px 0"><div class="row sp"><b>Stop ${s.id} · ${s.t.split('–')[0]}</b><button class="chip p" style="border:0;cursor:pointer;font-family:inherit" data-act="edit" data-v="${s.id}">✏️ ${e?'Done':'Edit'}</button></div>
+  ${e?`<input value="${s.name}" style="margin:8px 0"><input value="${s.col}" style="margin-bottom:6px">`:`<h3 style="margin-top:4px">${s.name}</h3><div class="mut">${s.col}</div>`}
+  <div style="font-size:14px;margin-top:4px">📦 ${s.eq}</div></div>`;}).join('')}
+ <button class="btn" data-go="home" style="margin-top:6px">Looks good, go to Today</button></div>`});
+
+V.home=()=>{
+ let body='';
+ if(S.role==='dueno'){
+  body=`<div class="scroll pb">
+  ${S.approved?`<div class="good fade" style="margin:6px 0 12px"><span style="font-size:22px">✅</span><span>Plan changed by Rodrigo at 9:44 am<br><span style="font-weight:500;font-size:13px">${S.chosen==='M'?'Your own order':'Option '+S.chosen+' · '+OPTS[S.chosen].prot}</span></span></div>`:''}
+  <div class="truck"><div class="big">🚚 Truck with Chucho – on the way to Stop 3</div><div class="src">Reported by Chucho at 9:32 am · no GPS</div></div>
+  <div class="row sp"><h3>Today's plan</h3><span class="mut">2 done · 1 on the way · 3 pending</span></div>
+  <div class="tl" style="margin-top:14px">${STOPS.map(s=>stopCard(s)).join('')}</div>
+  <button class="link" data-go="huddle">See the 6:45 am Huddle</button>
+  <button class="link" style="color:var(--muted);text-decoration:none" data-go="imp0">Bring in another plan</button></div>
+  <button class="sos" data-go="br1"><span style="font-size:26px">⚠️</span>Something broke</button>`;
+ } else if(S.role==='despacho'){
+  const P=[{t:'Move Stop 5 delivery 20 min later',c:'Mrs. Mena · Montebello',cost:0,r:true},{t:'Swap the order of Stop 4 and Stop 5',c:'Mr. Góngora and Mrs. Mena',cost:167,r:true},{t:'Reschedule Mrs. Pérez to 4:00 pm',c:'Stop 3 · Itzimná',cost:334,r:false},{t:'Move the hacienda 30 min earlier',c:'Stop 6 · planner Lucía Campos',cost:334,r:false,pl:true}];
+  body=`<div class="scroll pb"><h1 style="font-size:23px">Hi, Lupita</h1>
+  <div class="card" style="background:var(--pl);border:0"><b>🚚 Truck with Chucho – on the way to Stop 3</b><div class="mut">Reported by Chucho at 9:32 am</div></div>
+  <h3 style="margin-top:14px">Changes waiting for approval</h3>
+  <p class="sub" style="font-size:13px">Every change is saved with who approved it.</p>
+  ${P.map((p,i)=>`<div class="pend">
+   <div class="row" style="margin-bottom:8px">${p.r?'<span class="chip ok">Routine: you can decide without the owner</span>':'<span class="chip am">Needs owner: involves '+(p.pl?'a planner':'money')+'</span>'}</div>
+   <b>${p.t}</b><div class="mut">${p.c} · Cost ${money(p.cost)} · Estimate</div>
+   ${S.disp[i]?`<div class="chip ${S.disp[i]==='ok'?'ok':'red'}" style="margin-top:10px">${S.disp[i]==='ok'?'✓ Approved by Lupita':'✕ Rejected by Lupita'}</div>`
+    :p.r?`<div class="two"><button class="btn ok" data-act="disp" data-v="${i}:ok">Approve</button><button class="btn sec" data-act="disp" data-v="${i}:no">Reject</button></div>`
+    :(S.ask[i]?`<div class="chip p" style="margin-top:10px">✓ Request sent to Rodrigo</div>`:`<button class="btn sec" style="margin-top:10px" data-act="ask" data-v="${i}">Ask Rodrigo</button>`)}
+  </div>`).join('')}</div>
+  <button class="sos" data-go="br1"><span style="font-size:26px">⚠️</span>Something broke</button>`;
+ } else {
+  const c=S.checkin;
+  const msg={lle:['✅ Arrival logged at 9:41 am','Rodrigo and Lupita can see it. Source: your check-in.'],ato:['🚧 Stuck logged at 9:41 am','We told Lupita. She is recalculating the day.'],ayu:['🆘 Help requested','We notified Lupita (dispatch) and Beto, the nearest teammate.']}[c];
+  const sc=stopBy(S.csel);
+  const nts=[...sc.notes,...(S.extraNotes[S.csel]||[])];
+  body=`<div class="scroll"><h1 style="font-size:23px">Hi, Chucho</h1>
+  <div class="card"><div class="row sp"><b>Your next: Stop 3</b>${chipFor('enroute')}</div><div>Mrs. Pérez · Itzimná · 9:30–10:30 am</div></div>
+  <div class="ci"><button style="background:var(--ok)" data-act="chk" data-v="lle">📍 I arrived</button><button style="background:#C98A00" data-act="chk" data-v="ato">🚧 I'm stuck</button><button style="background:var(--red)" data-act="chk" data-v="ayu">🆘 I need help</button></div>
+  ${c?`<div class="good fade" style="margin-top:12px;background:#fff"><div>${msg[0]}<div style="font-weight:500;font-size:14px;margin-top:4px">${msg[1]}</div></div></div>`:''}
+  <h3 style="margin-top:18px">Why it changed</h3>
+  <div class="card" style="border-left:6px solid var(--p)"><p style="margin-bottom:6px">The 10:30 am delivery was moved because Mrs. Pérez was not there.</p><div class="mut">Approved by: Rodrigo · 9:44 am${S.approved?'':' · (example)'}</div></div>
+  <div class="card" style="border-left:6px solid var(--p)"><p style="margin-bottom:6px">Today's overtime is shared: it is Beto's turn.</p><div class="mut">Team load rule · Estimate</div></div>
+  <h3 style="margin-top:18px">My stops</h3>
+  <div class="tl" style="margin-top:12px">${STOPS.map(s=>stopCard(s)).join('')}</div>
+  <h3 style="margin-top:12px">Venue notes</h3>
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin:10px 0">${STOPS.map(s=>`<button class="chip ${S.csel===s.id?'p':''}" style="border:0;cursor:pointer;min-height:40px;font-family:inherit" data-act="csel" data-v="${s.id}">Stop ${s.id}</button>`).join('')}</div>
+  <div class="card">${nts.map(n=>`<div class="nt"><b>${n[0]}</b><span>${n[1]}</span></div>`).join('')}
+   ${S.addNote?`<div class="fade"><textarea id="nt" style="min-height:80px;margin-top:10px" placeholder="E.g. The guard already knows the truck"></textarea><button class="btn" style="margin-top:8px" data-act="saveNote">Save note</button></div>`:`<button class="btn sec" style="margin-top:10px" data-act="newNote">＋ Add note</button>`}</div>
+  <h3 style="margin-top:12px">Notifications</h3>
+  <div class="card"><div class="nt"><b>9:44 am</b><span>Plan updated by Rodrigo</span></div><div class="nt"><b>9:32 am</b><span>Lupita: your departure was confirmed</span></div><div class="nt"><b>7:10 am</b><span>Today the hacienda gate closes at 2:00 pm</span></div></div></div>`;
+ }
+ return {body,main:true};
+};
+V.huddle=()=>({body:`${bar('Huddle 6:45 am')}<div class="scroll">
+ <div class="seg"><button class="${S.hTab==='am'?'on':''}" data-act="hTab" data-v="am">Morning 6:45</button><button class="${S.hTab==='pm'?'on':''}" data-act="hTab" data-v="pm">End of day</button></div>
+ ${S.hTab==='am'?`<div class="card fade"><h3>Truck 1</h3><p class="sub" style="margin:4px 0">Chucho (driver) · Beto (helper)</p></div>
+ <h3 style="margin-top:6px">Today's plan</h3>${STOPS.map(s=>`<div class="card" style="margin:8px 0;padding:12px"><b>${s.t.split('–')[0]}</b> · ${s.name}<div class="mut">${s.col}</div></div>`).join('')}
+ <h3 style="margin-top:14px">Risks</h3>
+ <div class="alert" style="margin:8px 0">⚠️ Hacienda: the gate closes at 2:00 pm</div><div class="alert" style="margin:8px 0">⚠️ Itzimná: narrow street, no parking</div>`
+ :`<div class="card fade"><div class="stat"><div><b>5 of 6</b><span>Deliveries done</span></div><div><b>1</b><span>Plan change</span></div><div><b>+1 h</b><span>Overtime</span></div><div><b>0</b><span>Late customers</span></div></div></div>
+ <div class="card"><b>For tomorrow</b><p class="sub" style="margin:4px 0 0">Tell Lupita that Mrs. Pérez prefers the afternoon.</p></div>`}</div>`});
+
+V.br1=()=>({body:`${bar('Something broke')}${stepper(1)}<div class="scroll"><h1 style="font-size:23px">What happened?</h1><p class="sub">Pick one. It takes 2 minutes.</p>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">${Object.entries(PROBS).map(([k,v])=>`<button class="choice" style="flex-direction:column;justify-content:center;text-align:center;min-height:150px;margin:0" data-act="prob" data-v="${k}"><span class="ic" style="width:60px;height:60px;font-size:34px">${v[0]}</span>${v[1]}</button>`).join('')}</div></div>`});
+V.br2=()=>({body:`${bar('Confirm')}${stepper(2)}<div class="scroll"><h1 style="font-size:23px">Is this what happened?</h1>
+ <span class="chip red" style="margin:6px 0">${PROBS[S.prob][1]}</span>
+ <div class="card" style="font-size:18px;font-weight:700;line-height:1.35">${PROBS[S.prob][2]}</div>
+ <p class="mut">Reported by Chucho at 9:32 am. Replan does not use GPS.</p>
+ <button class="btn" data-go="br3" style="margin-top:20px">Next</button></div>`});
+V.br3=()=>({body:`${stepper(3)}<div class="scroll center" style="padding-top:50px"><div class="spin"></div><h1 style="font-size:21px;margin-top:22px">Recalculating the rest of the day…</h1><p class="sub">Checking schedules, venue notes and overtime.</p>
+ <div style="text-align:left;margin-top:20px">${[1,2,3].map(()=>'<div class="skel" style="height:96px;margin:12px 0"></div>').join('')}</div></div>`});
+function optCard(k){
+ const o=OPTS[k],c=S.corr[k],ex=S.exp[k];
+ return `<div class="opt ${c?'fixed':''}"><div class="oh"><div class="let">${k}</div><div style="flex:1"><div class="prot">Protects</div><h3>${o.prot}</h3></div><span class="chip am" style="background:#E8EEEF;color:var(--muted)">Estimate</span></div>
+ ${c?`<div class="chip ok" style="margin-top:10px">✓ Corrected with your input</div>`:''}
+ <div class="cost">${money(o.cost)} <small>total cost</small></div>
+ <div class="mets"><div><b>${o.ot}</b><span>Overtime</span></div><div><b>${o.late}</b><span>Late customers</span></div><div><b>${o.km}</b><span>Extra km</span></div></div>
+ <p style="font-size:14px;margin-bottom:6px">${o.extra}</p>
+ <div class="row" style="margin:4px 0 8px"><span class="mut">More load for:</span><span class="chip ${o.load==='Even'?'ok':'am'}">${o.load}</span></div>
+ <div class="imp"><b>Impact on the next event:</b><br>${o.impact}</div>
+ <button class="ven" data-act="venue">📍 Based on hacienda notes: gate closes at 2:00 pm</button>
+ <button class="why" data-act="why" data-v="${k}"><span>Why this option?</span><span>${ex?'▲':'▼'}</span></button>
+ ${ex?`<div class="whyb fade">${o.why}${c?`<br><b>Your adjustment:</b> “${c}”.`:''}<b style="display:block;margin-top:8px">Assumptions</b><ul>${ASSUME.map(a=>`<li>${a}</li>`).join('')}</ul><span class="chip">Estimate</span> <span class="mut">Based on 4 previous deliveries in this neighborhood</span></div>`:''}
+ <button class="btn" data-act="approve" data-v="${k}">Approve this option</button>
+ <button class="link" style="padding:10px" data-act="wrong" data-v="${k}">Something's off</button></div>`;
+}
+V.br4=()=>({body:`${bar('Your 3 options')}${stepper(3)}<div class="scroll"><p class="sub" style="margin-bottom:0"><b>Nothing is applied automatically.</b> You decide which one.</p>
+ ${optCard('A')}${optCard('B')}${optCard('C')}
+ <button class="btn sec" data-go="manual">I'd rather decide myself</button></div>`});
+V.manual=()=>({body:`${bar('You decide')}<div class="scroll"><p class="sub">Drag with ☰ to change the order of the rest of the day.</p>
+ <div id="dlist">${S.manual.map(id=>{const s=stopBy(id);return `<div class="ditem" data-id="${id}"><div><b>Stop ${id} · ${s.name}</b><div class="mut">${s.col}</div></div><span class="handle">☰</span></div>`}).join('')}</div>
+ <p class="big-note">Reordering is visual only in this prototype.</p>
+ <button class="btn" data-act="approve" data-v="M">Use this order</button></div>`});
+V.ok=()=>{
+ const k=S.chosen; const rows=k==='M'?S.manual.map((id,i)=>[id,['10:15 am','11:15 am','12:15 pm','1:15 pm'][i],'Your order']):OPTS[k].plan;
+ return {body:`${bar('Done, approved',false)}<div class="scroll">
+ <div class="center"><div class="checkc pop">${CHECK}</div><h1 style="font-size:23px">Plan updated</h1><p class="sub">${k==='M'?'Your order':'Option '+k+' · '+OPTS[k].prot}. Approved by: Rodrigo.</p></div>
+ <div class="card">${rows.map(r=>`<div class="nt"><b>Stop ${r[0]}</b><span>${stopBy(r[0]).name}<br><span class="mut">${r[1]} · ${r[2]}</span></span></div>`).join('')}</div>
+ <h3 style="margin-top:16px">Notify Chucho and the customer</h3>
+ <div class="chat"><div class="bubble">Chucho, the plan changed: Mrs. Pérez is now at ${rows[0][1]} and we continue with Stop 4. Approved by Rodrigo. 🚚</div><div class="to">To: Chucho</div>
+ <div class="bubble">Hello Mrs. Pérez, we are letting you know your delivery is now at ${rows[0][1]}. Thank you for your patience. — Eventos Rodrigo</div><div class="to">To: Mrs. Pérez</div></div>
+ ${S.sent?`<div class="good fade">✓ Messages sent on WhatsApp</div>`:`<button class="btn" data-act="send">Notify Chucho and the customer</button>`}
+ <div class="card" style="margin-top:18px;border:2px solid var(--p)"><h3>Planner: Lucía Campos</h3><p class="sub" style="margin:6px 0 12px">This is your call. Replan never writes to her or calls her on its own.</p>
+  <button class="btn" data-act="script">📞 Call the planner</button>
+  ${S.script?`<div class="whyb fade" style="margin-top:12px"><b>Suggested script (never sent):</b><p style="margin:6px 0 0">“Hi Lucía, it's Rodrigo. There was a route change today, but your 1:15 pm event at the hacienda stays the same. I'll let you know if anything moves.”</p></div>`:''}</div>
+ <button class="btn sec" style="margin-top:16px" data-act="home2">Back to Today</button></div>`};
+};
+V.equipo=()=>({main:true,body:`<div class="scroll"><h1 style="font-size:23px">Team load</h1><p class="sub">Overtime hours this month</p>
+ <div class="card"><div class="bars"><div style="height:100%;background:var(--p)">30 h</div><div style="height:17%;background:#7DB5BB;color:var(--pd)">5 h</div></div><div class="bl"><span>Chucho</span><span>Beto</span></div></div>
+ <div class="alert">⚠️ <b>Chucho has 6 times more overtime hours</b><p style="margin:6px 0 0;font-size:14px">The next 3 overtime hours could go to Beto.</p></div>
+ <div class="card"><div class="nt"><b>Overtime hour</b><span>$334 ($167 × 2)</span></div><div class="nt"><b>Chucho</b><span>Driver · 30 h overtime</span></div><div class="nt"><b>Beto</b><span>Helper · 5 h overtime</span></div><div class="nt"><b>Lupita</b><span>Dispatch</span></div></div>
+ <p class="mut">Estimate based on hours reported by the team.</p></div>`});
+V.resumen=()=>({main:true,body:`<div class="scroll"><h1 style="font-size:23px">This week's summary</h1>
+ <div class="stat"><div><b>3</b><span>Replans done</span></div><div><b>2 min</b><span>Average time to decide</span></div><div><b>${money(1170)}</b><span>Overtime avoided</span></div><div><b>2</b><span>Late customers avoided</span></div></div>
+ <h3 style="margin-top:18px">⭐ Saved the day</h3>
+ <div class="card"><div class="nt"><b>Chucho</b><span>fixed the flat tire in Altabrisa</span></div><div class="nt"><b>Beto</b><span>set up the tent alone in 30 min in Montebello</span></div><div class="nt"><b>Lupita</b><span>rearranged 3 deliveries before 8 am</span></div></div>
+ <h3 style="margin-top:18px">Team pulse</h3>
+ <div class="card"><b>How was the workload this week?</b><div class="emo">${['😫','😐','🙂'].map(e=>`<button class="${S.pulse.a===e?'on':''}" data-act="pulse" data-v="a:${e}">${e}</button>`).join('')}</div>
+ <b>Did you feel informed?</b><div class="emo">${['😕','😐','😀'].map(e=>`<button class="${S.pulse.b===e?'on':''}" data-act="pulse" data-v="b:${e}">${e}</button>`).join('')}</div></div>
+ <div class="price"><div style="font-weight:700">Rodrigo Plan</div><div><b>$499</b>/month</div><p style="margin:8px 0 0">One well-made replan can save you more than this.</p><button class="btn" data-go="listo">Try 30 days</button></div></div>`});
+V.listo=()=>({body:`<div class="scroll center" style="padding-top:70px"><div class="checkc pop">${CHECK}</div><h1>All set!</h1><p class="sub">Your 30-day trial has started. We are not asking for payment now.</p><button class="btn" style="margin-top:30px" data-act="home2">Go to Today</button></div>`});
+
+/* ---------- render ---------- */
+function render(newScreen){
+ const old=document.querySelector('.scroll'); const top=old&&!newScreen?old.scrollTop:0;
+ const v=V[S.screen](); const m=v.main||MAIN.includes(S.screen);
+ let h=`<div class="ribbon">Prototype</div>`;
+ if(m) h+=mainTop();
+ h+=v.body;
+ if(m) h+=tabs();
+ if(S.sheet==='wrong') h+=`<div class="overlay" data-act="close"></div><div class="sheet"><div class="grab"></div><h1 style="font-size:22px;margin-top:0">What's wrong?</h1>${WRONG.map(w=>`<button class="choice" style="min-height:64px;font-size:16px;margin:8px 0" data-act="pw" data-v="${w}">${w}</button>`).join('')}</div>`;
+ if(S.sheet==='thanks') h+=`<div class="overlay" data-act="close"></div><div class="sheet center"><div class="grab"></div><div class="checkc pop">${CHECK}</div><h1 style="font-size:22px">Thanks, I'll remember this for this place</h1><p class="sub">That way the next estimate will be closer.</p><button class="btn" data-act="close">Back to the options</button></div>`;
+ if(S.sheet==='venue'){const s=stopBy(6);h+=`<div class="overlay" data-act="close"></div><div class="sheet"><div class="grab"></div><h1 style="font-size:21px;margin-top:0">Notes for ${s.name}</h1>${s.notes.map(n=>`<div class="nt"><b>${n[0]}</b><span>${n[1]}</span></div>`).join('')}<p class="mut" style="margin-top:10px">Based on your notes</p><button class="btn sec" data-act="close">Close</button></div>`;}
+ $('#app').innerHTML=h;
+ const sc=document.querySelector('.scroll'); if(sc) sc.scrollTop=top;
+ initDrag();
+}
+function initDrag(){
+ const list=document.getElementById('dlist'); if(!list) return;
+ list.querySelectorAll('.handle').forEach(hd=>{
+  hd.addEventListener('pointerdown',e=>{
+   e.preventDefault(); const item=hd.closest('.ditem'); item.classList.add('dragging'); hd.setPointerCapture(e.pointerId);
+   const move=ev=>{ const others=[...list.children].filter(x=>x!==item);
+    for(const o of others){const r=o.getBoundingClientRect(); if(ev.clientY<r.top+r.height/2){ if(item.nextSibling!==o) list.insertBefore(item,o); return; }}
+    list.appendChild(item); };
+   const up=()=>{ hd.removeEventListener('pointermove',move); hd.removeEventListener('pointerup',up); item.classList.remove('dragging'); S.manual=[...list.children].map(x=>+x.dataset.id); };
+   hd.addEventListener('pointermove',move); hd.addEventListener('pointerup',up);
+  });
+ });
+}
+
+/* ---------- actions ---------- */
+const A={
+ back:()=>back(), close:()=>{S.sheet=null;render();},
+ role:v=>{S.role=v;render(true);}, tab:v=>setMain(v),
+ src:v=>{S.vsrc=v; go(v==='pegar'?'imp1':'imp2');},
+ addr:()=>{S.addrOk=true;render();}, edit:v=>{S.edit[v]=!S.edit[v];render();},
+ openStop:v=>{S.open[v]=!S.open[v];render();},
+ prob:v=>{S.prob=v;go('br2');},
+ why:v=>{S.exp[v]=!S.exp[v];render();},
+ venue:()=>{S.sheet='venue';render();},
+ wrong:v=>{S.sheetCard=v;S.sheet='wrong';render();},
+ pw:v=>{S.corr[S.sheetCard]=v;S.sheet='thanks';render();setTimeout(()=>{if(S.sheet==='thanks'){S.sheet=null;render();}},2200);},
+ approve:v=>{S.chosen=v;S.approved=true;S.sent=false;S.script=false;go('ok');},
+ send:()=>{S.sent=true;render();}, script:()=>{S.script=!S.script;render();},
+ home2:()=>setMain('home'),
+ chk:v=>{S.checkin=v;render();}, csel:v=>{S.csel=+v;S.addNote=false;render();},
+ newNote:()=>{S.addNote=true;render();},
+ saveNote:()=>{const t=(document.getElementById('nt').value||'').trim()||'The guard already knows the truck';(S.extraNotes[S.csel]=S.extraNotes[S.csel]||[]).push(['Chucho · just now',t]);S.addNote=false;render();},
+ disp:v=>{const [i,r]=v.split(':');S.disp[i]=r;render();}, ask:v=>{S.ask[v]=true;render();},
+ pulse:v=>{const [q,e]=v.split(':');S.pulse[q]=e;render();}, hTab:v=>{S.hTab=v;render();}
+};
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-act],[data-go]'); if(!t) return;
+ if(t.dataset.go){ go(t.dataset.go); return; }
+ const f=A[t.dataset.act]; if(f) f(t.dataset.v);
+});
+render(true);
+</script>
+</body>
+</html>
